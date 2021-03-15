@@ -31,6 +31,7 @@ type Game struct {
 	asteroids []*asteroid.Asteroid
 	score     int
 	level     int
+	started   bool
 }
 
 func NewGame() *Game {
@@ -62,6 +63,18 @@ func (g *Game) aliveAsteroids() int {
 		}
 	}
 	return c
+}
+
+func (g *Game) asteroidColidedWithPlayer() bool {
+	for _, asteroid := range g.asteroids {
+		if !asteroid.Alive {
+			continue
+		}
+		if asteroid.Collision(g.player.Location, g.player.HitRadius) {
+			return true
+		}
+	}
+	return false
 }
 
 func (g *Game) reset() {
@@ -103,6 +116,13 @@ func (g *Game) Update() error {
 		return nil
 	}
 
+	if !g.started {
+		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
+			g.started = true
+		}
+		return nil
+	}
+
 	g.handleInput()
 
 	// Killed all asteroids.
@@ -115,15 +135,10 @@ func (g *Game) Update() error {
 	}
 
 	// Check for collisions.
-	for _, asteroid := range g.asteroids {
-		if !asteroid.Alive {
-			continue
-		}
-		// Asteroid collided with player.
-		if asteroid.Collision(g.player.Location, g.player.HitRadius) {
-			g.player.Kill()
-		}
+	if g.asteroidColidedWithPlayer() {
+		g.player.Kill()
 	}
+
 	translation := vector.V2D{X: -ScreenWidth / 2, Y: -ScreenHeight / 2}
 	for _, bullet := range g.player.Bullets {
 		if !bullet.Alive {
@@ -168,6 +183,10 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	if g.player.Lives == 0 {
 		drawGameOver(screen)
+	}
+	if !g.started {
+		drawStart(screen)
+		return
 	}
 	g.player.Draw(screen)
 	for _, a := range g.asteroids {
