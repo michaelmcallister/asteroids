@@ -26,12 +26,21 @@ type gameText string
 
 const (
 	gameOverText    gameText = "Game Over"
-	gameOverSubText gameText = "Press <enter> to restart"
+	gameOverSubText gameText = "Press <Enter> to restart"
+)
+
+var (
+	gameStartControls []gameText = []gameText{
+		"Controls",
+		"Shoot.....<Space>",
+		"Thrust....<W> or <UP>",
+		"Move.....<A>/<D> or <LEFT>/<RIGHT>",
+	}
 )
 
 const (
 	gameStartTitle      gameText = "Asteroids"
-	gameStartSubText    gameText = "Press <enter> to play"
+	gameStartSubText    gameText = "Press <Enter>"
 	gameStartBottomText gameText = "Michael McAllister 2021"
 )
 
@@ -72,20 +81,37 @@ func drawStart(screen *ebiten.Image) {
 
 	f1 := truetype.NewFace(gameFont, &truetype.Options{Size: fontSizes[gameStartTitle]})
 	f2 := truetype.NewFace(gameFont, &truetype.Options{Size: fontSizes[gameStartSubText]})
-	f3 := truetype.NewFace(gameFont, &truetype.Options{Size: fontSizes[gameStartBottomText]})
+	f4 := truetype.NewFace(gameFont, &truetype.Options{Size: fontSizes[gameStartBottomText]})
 	b1 := text.BoundString(f1, string(gameStartTitle))
 	b2 := text.BoundString(f2, string(gameStartSubText))
-	b3 := text.BoundString(f3, string(gameStartBottomText))
+	b4 := text.BoundString(f4, string(gameStartBottomText))
 
 	topX := sHalf - (b1.Dx() / 2)
 	topY := sThird
 	subX := ScreenWidth/2 - b2.Dx()/2
 	subY := sThird + b1.Dy() + ScreenHeight/4
-	bottomX := ScreenWidth/2 - b3.Dx()/2
+	bottomX := ScreenWidth/2 - b4.Dx()/2
 
 	text.Draw(screen, string(gameStartTitle), f1, topX, topY, color.White)
-	text.Draw(screen, string(gameStartSubText), f2, subX, subY, color.White)
-	text.Draw(screen, string(gameStartBottomText), f3, bottomX, ScreenHeight, color.White)
+	text.Draw(screen, string(gameStartSubText), f2, subX, topY+b1.Dy(), color.White)
+	controlsY := sThird + b1.Dy() + ScreenHeight/4
+	maxX := 0
+	for _, t := range gameStartControls {
+		f3 := truetype.NewFace(gameFont, &truetype.Options{Size: 16.0})
+		b := text.BoundString(f3, string(t))
+		if b.Dx() > maxX {
+			maxX = b.Dx()
+		}
+	}
+	text.Draw(screen, string(gameStartControls[0]), f2, maxX/2, subY, color.White)
+	for i := 1; i < len(gameStartControls); i++ {
+		t := gameStartControls[i]
+		f3 := truetype.NewFace(gameFont, &truetype.Options{Size: 16.0})
+		b := text.BoundString(f3, string(t))
+		controlsY += b.Dy()
+		text.Draw(screen, string(t), f3, ScreenWidth/8, controlsY, color.White)
+	}
+	text.Draw(screen, string(gameStartBottomText), f4, bottomX, ScreenHeight, color.White)
 }
 
 func drawGameOver(screen *ebiten.Image) {
