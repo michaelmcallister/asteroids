@@ -127,7 +127,6 @@ func (a *Asteroid) Scale(n float64) {
 func (a *Asteroid) Shrink() {
 	switch a.Size {
 	case Small:
-		a.Alive = false
 		return
 	case Medium:
 		a.Size = Small

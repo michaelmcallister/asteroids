@@ -1,7 +1,6 @@
 package asteroids
 
 import (
-	_ "embed"
 	"math"
 
 	"github.com/michaelmcallister/asteroids/asteroid"
@@ -149,12 +148,13 @@ func (g *Game) Update() error {
 				g.player.Lives++
 			}
 
-			// The asteroid is the smallest it can get, no more children.
-			if !a.Alive {
+			// If the asteroid is the smallest it can get, no more children.
+			if a.Size == asteroid.Small {
+				a.Alive = false
 				continue
+			} else {
+				g.spawnAsteroids(a)
 			}
-			// Else we spawn some more asteroids.
-			g.spawnAsteroids(a)
 		}
 	}
 

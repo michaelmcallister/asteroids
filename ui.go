@@ -41,10 +41,13 @@ func drawLives(screen *ebiten.Image, count int) {
 		n := player.New(ScreenWidth, ScreenHeight)
 		n.Scale(-2.0)
 		//convert screen space vector into world space
-		n.Location = vector.V2D{X: ScreenWidth - offset, Y: 10}.Add(translation)
+		n.Location = vector.V2D{
+			X: ScreenWidth - offset,
+			Y: n.HitRadius,
+		}.Add(translation)
 		n.Update()
 		n.Draw(screen)
-		offset += 20
+		offset += n.HitRadius
 	}
 }
 
