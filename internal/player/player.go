@@ -3,9 +3,10 @@ package player
 import (
 	"image/color"
 
+	"github.com/michaelmcallister/asteroids/internal/vector"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"github.com/michaelmcallister/asteroids/vector"
 )
 
 const (

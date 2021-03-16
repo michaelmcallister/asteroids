@@ -3,9 +3,9 @@ package asteroids
 import (
 	"math"
 
-	"github.com/michaelmcallister/asteroids/asteroid"
-	"github.com/michaelmcallister/asteroids/player"
-	"github.com/michaelmcallister/asteroids/vector"
+	"github.com/michaelmcallister/asteroids/internal/asteroid"
+	"github.com/michaelmcallister/asteroids/internal/player"
+	"github.com/michaelmcallister/asteroids/internal/vector"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -26,6 +26,8 @@ var scores = map[asteroid.Size]int{
 	asteroid.Large:  20,
 }
 
+var translation = vector.V2D{X: -ScreenWidth / 2, Y: -ScreenHeight / 2}
+
 type Game struct {
 	player    *player.Player
 	asteroids []*asteroid.Asteroid
@@ -44,37 +46,16 @@ func (g *Game) spawnAsteroids(a *asteroid.Asteroid) {
 	// Shrink the asteroid size and spawn children from it.
 	a.Shrink()
 	count := 0
-	for _, asteroid := range g.asteroids {
+	for i, asteroid := range g.asteroids {
 		if count == childAsteroidsToSpawn {
-			break
+			return
 		}
 		if !asteroid.Alive {
-			g.asteroids = append(g.asteroids, a.SpawnChild())
+			g.asteroids[i] = a.SpawnChild()
+			g.asteroids[i].Alive = true
 			count++
 		}
 	}
-}
-
-func (g *Game) aliveAsteroids() int {
-	c := 0
-	for _, a := range g.asteroids {
-		if a.Alive {
-			c++
-		}
-	}
-	return c
-}
-
-func (g *Game) asteroidColidedWithPlayer() bool {
-	for _, asteroid := range g.asteroids {
-		if !asteroid.Alive {
-			continue
-		}
-		if asteroid.Collision(g.player.Location, g.player.HitRadius) {
-			return true
-		}
-	}
-	return false
 }
 
 func (g *Game) reset() {
@@ -125,51 +106,55 @@ func (g *Game) Update() error {
 
 	g.handleInput()
 
-	// Killed all asteroids.
-	if g.aliveAsteroids() == 0 {
-		g.level++
-		for i := 0; i < startingAsteroidCount+g.level; i++ {
-			g.asteroids[i] = asteroid.New(ScreenWidth, ScreenHeight)
-			g.asteroids[i].Alive = true
-		}
-	}
-
 	// Check for collisions.
-	if g.asteroidColidedWithPlayer() {
-		g.player.Kill()
-	}
-
-	translation := vector.V2D{X: -ScreenWidth / 2, Y: -ScreenHeight / 2}
+	bulletLocations := make(map[*player.Bullet](vector.V2D))
 	for _, bullet := range g.player.Bullets {
 		if !bullet.Alive {
 			continue
 		}
 		//convert bullet screen space location to world space to compare
 		//with asteroids world space to detect a collision
-		world := bullet.Location.Add(translation)
-		for _, a := range g.asteroids {
-			// No collision, moving on.
-			if !a.Collision(world, 1) {
-				continue
-			}
-			// We've collided, destroy the bullet.
-			bullet.Alive = false
+		bulletLocations[bullet] = bullet.Location.Add(translation)
+	}
+	aliveAsteroids := 0
+	for _, astrd := range g.asteroids {
+		if !astrd.Alive {
+			continue
+		}
+		aliveAsteroids++
+		// Check if player collided with asteroid.
+		if astrd.Collision(g.player.Location, g.player.HitRadius) {
+			g.player.Kill()
+		}
 
-			// Calculate the score.
-			g.score += scores[a.Size]
+		for blt, loc := range bulletLocations {
+			if astrd.Collision(loc, 1) {
+				// We've collided, destroy the bullet.
+				blt.Alive = false
 
-			// Add new life every additionalLifeScore.
-			if g.score%additionalLifeScore == 0 {
-				g.player.Lives++
-			}
+				// Calculate the score.
+				g.score += scores[astrd.Size]
 
-			// If the asteroid is the smallest it can get, no more children.
-			if a.Size == asteroid.Small {
-				a.Alive = false
-				continue
-			} else {
-				g.spawnAsteroids(a)
+				// Add new life every additionalLifeScore.
+				if g.score%additionalLifeScore == 0 {
+					g.player.Lives++
+				}
+
+				// If the asteroid is the smallest it can get, no more children.
+				if astrd.Size == asteroid.Small {
+					astrd.Alive = false
+				} else {
+					g.spawnAsteroids(astrd)
+				}
 			}
+		}
+	}
+
+	if aliveAsteroids == 0 {
+		g.level++
+		for i := 0; i < startingAsteroidCount+g.level; i++ {
+			g.asteroids[i] = asteroid.New(ScreenWidth, ScreenHeight)
+			g.asteroids[i].Alive = true
 		}
 	}
 

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"image/color"
 
-	"github.com/michaelmcallister/asteroids/player"
-	"github.com/michaelmcallister/asteroids/vector"
+	"github.com/michaelmcallister/asteroids/internal/player"
+	"github.com/michaelmcallister/asteroids/internal/vector"
 
 	"github.com/golang/freetype/truetype"
 	"github.com/hajimehoshi/ebiten/v2"

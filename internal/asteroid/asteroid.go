@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/michaelmcallister/asteroids/vector"
+	"github.com/michaelmcallister/asteroids/internal/vector"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
