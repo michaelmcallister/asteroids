@@ -146,7 +146,7 @@ func (p *Player) Draw(screen *ebiten.Image) {
 
 	for _, b := range p.Bullets {
 		if b.Alive {
-			screen.Set(int(b.Location.X), int(b.Location.Y), color.White)
+			ebitenutil.DrawLine(screen, b.Location.X, b.Location.Y, b.Location.X+1, b.Location.Y+1, color.White)
 		}
 	}
 }
