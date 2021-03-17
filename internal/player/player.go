@@ -30,6 +30,14 @@ type Bullet struct {
 	Alive              bool
 }
 
+var (
+	bulletImg = ebiten.NewImage(1, 1)
+)
+
+func init() {
+	bulletImg.Fill(color.White)
+}
+
 func New(screenWidth, screenHeight int) *Player {
 	p := &Player{}
 	p.Lives = 3
@@ -146,7 +154,9 @@ func (p *Player) Draw(screen *ebiten.Image) {
 
 	for _, b := range p.Bullets {
 		if b.Alive {
-			ebitenutil.DrawLine(screen, b.Location.X, b.Location.Y, b.Location.X+1, b.Location.Y+1, color.White)
+			op := &ebiten.DrawImageOptions{}
+			op.GeoM.Translate(b.Location.X, b.Location.Y)
+			screen.DrawImage(bulletImg, op)
 		}
 	}
 }

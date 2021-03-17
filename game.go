@@ -53,6 +53,7 @@ func (g *Game) spawnAsteroids(a *asteroid.Asteroid) {
 		if !asteroid.Alive {
 			g.asteroids[i] = a.SpawnChild()
 			g.asteroids[i].Alive = true
+			g.asteroids[i].Update()
 			count++
 		}
 	}
@@ -143,11 +144,13 @@ func (g *Game) Update() error {
 				// If the asteroid is the smallest it can get, no more children.
 				if astrd.Size == asteroid.Small {
 					astrd.Alive = false
+					continue
 				} else {
 					g.spawnAsteroids(astrd)
 				}
 			}
 		}
+		astrd.Update()
 	}
 
 	if aliveAsteroids == 0 {
@@ -159,19 +162,16 @@ func (g *Game) Update() error {
 	}
 
 	g.player.Update()
-	for _, a := range g.asteroids {
-		a.Update()
-	}
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	if g.player.Lives == 0 {
-		drawGameOver(screen)
-	}
 	if !g.started {
 		drawStart(screen)
 		return
+	}
+	if g.player.Lives == 0 {
+		drawGameOver(screen)
 	}
 	g.player.Draw(screen)
 	for _, a := range g.asteroids {
