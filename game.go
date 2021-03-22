@@ -115,7 +115,7 @@ func (g *Game) Update() error {
 		}
 		//convert bullet screen space location to world space to compare
 		//with asteroids world space to detect a collision
-		bulletLocations[bullet] = bullet.Location.Add(translation)
+		bulletLocations[bullet] = bullet.Location.AddNew(translation)
 	}
 	aliveAsteroids := 0
 	for _, astrd := range g.asteroids {

@@ -7,3 +7,7 @@ wasm:
 .PHONY: native
 native:
 	go build -o ./build/asteroids ./cmd
+
+clean:
+	rm -rf ./html/main.wasm
+	rm -rf ./build/asteroids

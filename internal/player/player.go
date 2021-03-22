@@ -53,7 +53,7 @@ func New(screenWidth, screenHeight int) *Player {
 	p.Scale(12)
 	p.Rotate(180)
 	for i := range p.objVert {
-		p.worldVert[i] = p.worldVert[i].Add(p.objVert[i]).Add(p.translation)
+		p.worldVert[i] = p.objVert[i].AddNew(p.translation)
 	}
 	for i := range p.Bullets {
 		p.Bullets[i] = new(Bullet)
@@ -63,14 +63,12 @@ func New(screenWidth, screenHeight int) *Player {
 
 func (p *Player) Scale(n float64) {
 	for j := range p.objVert {
-		var v vector.V2D
 		if n < 0 {
-			v = p.objVert[j].Divide(-n)
+			p.objVert[j].Divide(-n)
 		}
 		if n > 0 {
-			v = p.objVert[j].Multiply(n)
+			p.objVert[j].Multiply(n)
 		}
-		p.objVert[j] = v
 	}
 }
 
@@ -87,7 +85,8 @@ func (p *Player) Shoot() {
 		if !b.Alive {
 			b.Alive = true
 			b.Location = p.worldVert[0]
-			b.velocity = p.GetDirection().Multiply(bulletVelocity)
+			b.velocity = p.GetDirection()
+			b.velocity.Multiply(bulletVelocity)
 			break
 		}
 	}
@@ -95,28 +94,33 @@ func (p *Player) Shoot() {
 
 func (p *Player) Rotate(degrees float64) {
 	for i := range p.objVert {
-		p.objVert[i] = p.objVert[i].Rotate(degrees)
+		p.objVert[i].Rotate(degrees)
 	}
 }
 
 func (p *Player) Update() {
-	p.velocity = p.velocity.Limit(2)
-	p.Location = p.Location.Add(p.velocity)
+	p.velocity.Limit(2)
+	p.Location.Add(p.velocity)
 	for i := range p.worldVert {
-		p.worldVert[i] = p.objVert[i].Add(p.Location).Add(p.translation)
+		t := p.objVert[i].AddNew(p.Location)
+		t.Add(p.translation)
+		p.worldVert[i] = t
 	}
 	for _, b := range p.Bullets {
-		b.Location = b.Location.Add(b.velocity)
+		b.Location.Add(b.velocity)
 	}
 	p.bounds()
 }
 
 func (p *Player) Thrust() {
-	p.velocity = p.velocity.Add(p.GetDirection().Multiply(thrustMultiplier))
+	p.velocity.Add(p.GetDirection())
+	p.velocity.Multiply(thrustMultiplier)
 }
 
 func (p *Player) GetDirection() vector.V2D {
-	return p.objVert[0].Normalize()
+	direction := p.objVert[0]
+	direction.Normalize()
+	return direction
 }
 
 func (p *Player) bounds() {

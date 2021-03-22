@@ -79,19 +79,23 @@ func New(screenWidth, screenHeight int) *Asteroid {
 	for i := range asteroid.objVert {
 		// converts verts from obj space to world space and translate world '
 		// space to screen space.
-		asteroid.worldVert[i] = asteroid.worldVert[i].Add(asteroid.objVert[i]).Add(asteroid.translation)
+		asteroid.worldVert[i].Add(asteroid.objVert[i])
+		asteroid.worldVert[i].Add(asteroid.translation)
 	}
 	asteroid.Update()
 	return asteroid
 }
 
 func (a *Asteroid) Update() {
-	a.Location = a.Location.Add(a.velocity)
+	a.Location.Add(a.velocity)
 	//update each vert of the asteroid to reflect the changes made to the asteroids location vector
 	//and rotation amount, then translate the new vert location to screen space
 	for i := range a.objVert {
-		a.worldVert[i] = a.objVert[i].Add(a.Location).Add(a.translation)
-		a.objVert[i] = a.objVert[i].Rotate(a.rotation)
+		t := a.objVert[i]
+		t.Add(a.Location)
+		t.Add(a.translation)
+		a.worldVert[i] = t
+		a.objVert[i].Rotate(a.rotation)
 	}
 	a.bounds()
 }
@@ -114,12 +118,12 @@ func (a *Asteroid) bounds() {
 func (a *Asteroid) Scale(n float64) {
 	if n < 0 {
 		for j := range a.objVert {
-			a.objVert[j] = a.objVert[j].Divide(-n)
+			a.objVert[j].Divide(-n)
 		}
 	}
 	if n > 0 {
 		for j := range a.objVert {
-			a.objVert[j] = a.objVert[j].Multiply(n)
+			a.objVert[j].Multiply(n)
 		}
 	}
 }
@@ -159,7 +163,7 @@ func (a *Asteroid) SpawnChild() *Asteroid {
 }
 
 func (a *Asteroid) Draw(screen *ebiten.Image) {
-	if !a.Alive || a == nil {
+	if a == nil || !a.Alive {
 		return
 	}
 	ebitenutil.DrawLine(screen, a.worldVert[0].X, a.worldVert[0].Y, a.worldVert[1].X, a.worldVert[1].Y, color.White)
