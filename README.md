@@ -1,3 +1,4 @@
+
 [![GPLv2 License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
 ![GitHub go.mod Go version][goversion-url]
@@ -5,20 +6,14 @@
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
-  <h3 align="center">Doom Fire</h3>
+  <h3 align="center">Asteroids</h3>
 
   <p align="center">
-      A Golang port of the Doom Fire effect in PSX (as documented by <a
-          href="https://fabiensanglard.net/doom_fire_psx/">Fabien Sanglard</a>)
-      <br />
-      <video>
-          <source src="res/asteroids.mp4" type="video/mp4">
-          Your browser does not support the video tag.
-      </video>
+      A Go clone of the classic Asteroids game
+  <br/>
+  https://github.com/michaelmcallister/asteroids/raw/main/res/asteroids.mp4
   </p>
 </p>
-
-
 
 <!-- LICENSE -->
 ## License
