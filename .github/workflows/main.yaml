@@ -1,5 +1,5 @@
 ---
-name: Compile PDFs
+name: Compile Asteroids
 on:
   push:
     tags:
